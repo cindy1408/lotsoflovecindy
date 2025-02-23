@@ -1,5 +1,4 @@
 # lotsoflovecindy
-# lotsoflovecindy
-# lotsoflovecindy
-# lotsoflovecindy
-# lotsoflovecindy
+
+Step 1: 
+1. store images 
