@@ -49,17 +49,34 @@
 
     <div class="table">
         <div class="grid-container">
-            <img src="./img/1.png" alt="Image 1"/>
-            <img src="./img/2.png" alt="Image 2"/>
-            <img src="./img/3.png" alt="Image 3"/>
-            <img src="./img/4.png" alt="Image 4"/>
-            <img src="./img/5.png" alt="Image 5"/>
-            <img src="./img/6.png" alt="Image 6"/>
-            <img src="./img/7.png" alt="Image 7"/>
-            <img src="./img/8.png" alt="Image 8"/>
-            <img src="./img/9.png" alt="Image 9"/>
+            <img id="1" src="./img/1.png" alt="Image 1" onclick="enlargeImg(id)" />
+            <img id="2" src="./img/2.png" alt="Image 2" onclick="enlargeImg(id)" />
+            <img id="3" src="./img/3.png" alt="Image 3" onclick="enlargeImg(id)" />
+            <img id="4" src="./img/4.png" alt="Image 4" onclick="enlargeImg(id)" />
+            <img id="5" src="./img/5.png" alt="Image 5" onclick="enlargeImg(id)" />
+            <img id="6" src="./img/6.png" alt="Image 6" onclick="enlargeImg(id)" />
+            <img id="7" src="./img/7.png" alt="Image 7" onclick="enlargeImg(id)" />
+            <img id="8" src="./img/8.png" alt="Image 8" onclick="enlargeImg(id)" />
+            <img id="9" src="./img/9.png" alt="Image 9" onclick="enlargeImg(id)" />
+            <video width="320" height="240" controls>
+                <source src="./video/1.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+              </video>
         </div>
     </div>
 </body>
+
+<script>
+      function enlargeImg(id) {
+        img = document.getElementById(id);
+        img.style.transform = "scale(1.5)";
+        img.style.transition = "transform 0.5s ease";
+      }
+    
+      function resetImg() {
+          img.style.transform = "scale(1)";
+          img.style.transition = "transform 0.5s ease";
+      }
+</script>
 
 </html>
