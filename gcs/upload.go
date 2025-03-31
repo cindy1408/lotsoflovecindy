@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-var bucketName = "lotsoflovecindy"
+const bucketName = "lotsoflovecindy"
 
 func UploadFileToGCS(w http.ResponseWriter, file io.Reader, fileName string) error {
 	ctx := context.Background()
