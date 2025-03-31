@@ -45,16 +45,17 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	object := bucket.Object(objectName)
 
 	writer := object.NewWriter(ctx)
-	defer writer.Close()
-	if err := writer.Close(); err != nil {
-		log.Printf("Failed to close GCS writer: %v", err)
-		http.Error(w, fmt.Sprintf("Failed to finalize upload to GCS: %v", err), http.StatusInternalServerError)
-		return
-	}
 
 	_, err = io.Copy(writer, file)
 	if err != nil {
 		http.Error(w, "Failed to upload file to GCS", http.StatusInternalServerError)
+		return
+	}
+
+	defer writer.Close()
+	if err = writer.Close(); err != nil {
+		log.Printf("Failed to close GCS writer: %v", err)
+		http.Error(w, fmt.Sprintf("Failed to finalize upload to GCS: %v", err), http.StatusInternalServerError)
 		return
 	}
 
