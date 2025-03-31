@@ -1,9 +1,10 @@
 linters:
   enable:
+    - gci
     - gofmt
     - goimports
-    - gci
 
 gci:
-  sections: ["std", "default", "prefix(github.com/yourorg)"]
+  format: true
+  sections: ["standard", "default", "prefix(github.com/yourorg)"]
   skip-generated: true
