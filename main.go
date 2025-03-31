@@ -12,6 +12,13 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/upload", uploadHandler)
 
+	http.HandleFunc("/list-files", func(w http.ResponseWriter, r *http.Request) {
+		err := gcs.RetrieveAllFilesFromGCS(w)
+		if err != nil {
+			log.Printf("Error retrieving files: %v", err)
+		}
+	})
+
 	fmt.Println("Server started on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
