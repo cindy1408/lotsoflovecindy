@@ -1,12 +1,13 @@
 package gcs
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+
+	"cloud.google.com/go/storage"
 )
 
 const bucketName = "lotsoflovecindy"
@@ -19,7 +20,7 @@ func UploadFileToGCS(w http.ResponseWriter, file io.Reader, fileName string) err
 		http.Error(w, "Failed to create storage client", http.StatusInternalServerError)
 		return err
 	}
-	defer client.Close()
+	defer client.Close() //nolint:errcheck
 
 	bucket := client.Bucket(bucketName)
 	object := bucket.Object(fileName)
@@ -31,7 +32,7 @@ func UploadFileToGCS(w http.ResponseWriter, file io.Reader, fileName string) err
 		return err
 	}
 
-	if err := writer.Close(); err != nil {
+	if err = writer.Close(); err != nil {
 		log.Printf("Failed to close GCS writer: %v", err)
 		http.Error(w, fmt.Sprintf("Failed to finalize upload to GCS: %v", err), http.StatusInternalServerError)
 		return err

@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"lotsoflovecindy/m/v2/gcs"
 	"net/http"
+
+	"lotsoflovecindy/m/v2/gcs"
 )
 
 func main() {
@@ -26,12 +27,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to get file from request", http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	err = gcs.UploadFileToGCS(w, file, header.Filename)
 	if err != nil {
 		return
 	}
 
-	fmt.Fprintf(w, "File uploaded successfully: %s", header.Filename)
+	if _, err := fmt.Fprintf(w, "File uploaded successfully: %s", header.Filename); err != nil {
+		log.Printf("failed to write response: %v", err)
+	}
 }
