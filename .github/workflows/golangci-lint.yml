@@ -25,16 +25,3 @@ jobs:
         with:
           version: v2.0
           install-mode: "goinstall"
-
-linters-settings:
-  govet:
-    check-shadowing: true
-
-linters:
-  enable:
-    - golint
-    - errcheck
-    - unused
-
-run:
-  timeout: 2m
