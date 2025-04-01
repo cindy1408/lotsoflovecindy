@@ -13,6 +13,34 @@
   color: white;
 }
 
+.header {
+  display: flex;
+  flex-direction: row; /* Arrange items in a row */
+  align-items: center; /* Vertically center the items */
+  justify-content: start; /* Align items to the left */
+  gap: 15px; /* Space between image and text */
+  padding: 20px;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+h3 {
+  font-size: 1.2rem;
+  font-weight: normal;
+  margin: 5px 0;
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: row; /* Arrange items in a row */
+  align-items: center; /* Vertically center the items */
+  justify-content: start; /* Align items to the left */
+}
+
 .profile {
   width: 100px;
   height: 100px;
