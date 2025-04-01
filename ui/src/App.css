@@ -21,15 +21,23 @@
   padding: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  gap: 10px; /* Adjust spacing between images */
+  padding: 20px;
+  justify-items: center; /* Center images */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.img {
+  width: 100%;  /* Fill the container */
+  height: 100%; /* Make height match width */
+  max-width: 300px; /* Prevent images from being too large */
+  aspect-ratio: 1 / 1; /* Forces a square aspect ratio */
+  border-radius: 10px; /* Optional: add rounded corners */
+  object-fit: cover; /* Ensures images maintain aspect ratio while filling */
+}
+
+.App-link {
+  color: #61dafb;
 }
