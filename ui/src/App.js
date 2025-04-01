@@ -1,8 +1,21 @@
-import React, { useState } from "react"; // state to handle file input
+import React, { useState, useEffect } from "react"; // state to handle file input
 import './App.css';
 
 function App() {
     const [file, setFile] = useState(null); // track selected file
+    const [images, setImages] = useState([]);
+
+
+    useEffect(() => {
+        fetch("http://localhost:8080/list-files")
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Image URLs:", data); // <-- Log the URLs here
+                setImages(data);
+            })
+            .catch((error) => console.error("Error fetching images:", error));
+    }, []);
+
 
     // Handle file input change
     const handleFileChange = (e) => {
@@ -46,6 +59,23 @@ function App() {
                  onChange={handleFileChange} // Update state when file is selected
           />
           <button onClick={uploadFile}>Upload</button> {/* Call uploadFile on button click */}
+
+
+          <div className="image-gallery">
+              {images.length > 0 ? (
+                  images.map((url, index) => (
+                      <img
+                          key={index}
+                          className="img" // Apply the img class here
+                          src={url.trim()}
+                          alt={`Image ${index}`}
+                          onError={(e) => console.log("Broken image:", url)}
+                      />
+                  ))
+              ) : (
+                  <p>No images found</p>
+              )}
+          </div>
       </header>
     </div>
   );
