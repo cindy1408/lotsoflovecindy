@@ -22,8 +22,7 @@ jobs:
       - name: Run gci to fix imports
         run: |
           go install github.com/daixiang0/gci@latest
-          gci write .
-          working-directory: ./backend
+          cd backend && gci write .
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v7
