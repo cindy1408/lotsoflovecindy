@@ -1,4 +1,5 @@
 name: golangci-lint
+
 on:
   push:
     branches:
@@ -13,6 +14,10 @@ jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -22,11 +27,12 @@ jobs:
       - name: Run gci to fix imports
         run: |
           go install github.com/daixiang0/gci@latest
-          cd backend && gci write .
+          gci write .
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
           version: latest
           install-mode: "goinstall"
-          args: --fix --timeout=5m ./backend/...
+          working-directory: backend
+          args: --fix --timeout=5m ./...
