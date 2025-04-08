@@ -23,10 +23,11 @@ jobs:
         run: |
           go install github.com/daixiang0/gci@latest
           gci write .
+          working-directory: ./backend
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
           version: latest
           install-mode: "goinstall"
-          args: --fix --timeout=5m
+          args: --fix --timeout=5m ./backend/...

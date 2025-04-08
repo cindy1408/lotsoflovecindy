@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,7 +8,10 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"lotsoflovecindy/m/v2/gcs"
+	"lotsoflovecindy/m/v2/model"
 )
 
 func main() {
@@ -27,23 +29,23 @@ func main() {
 	dbname := os.Getenv("DB_NAME")
 
 	// Format connection string
-	psqlInfo := fmt.Sprintf(
+	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname,
 	)
 
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error opening DB: %v", err)
 	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Error connecting to DB: %v", err)
-	}
 
 	fmt.Println("Successfully connected to the database!")
+
+	err = db.AutoMigrate(&model.Post{})
+	if err != nil {
+		log.Fatalf("AutoMigrate failed: %v", err)
+	}
+	fmt.Println("Successfully migrated the database!")
 
 	http.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/upload", uploadHandler)
