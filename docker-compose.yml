@@ -29,8 +29,8 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB}
       GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
-    volumes:
-      - /Users/cindycheung/Documents/credentials.json:/app/credentials.json
+#    volumes:
+#      - ${CREDENTIAL_PATH}/credentials.json:/app/credentials.json
 
 volumes:
   pgdata:
