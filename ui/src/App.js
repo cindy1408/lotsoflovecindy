@@ -8,7 +8,17 @@ function App() {
     // Fetch images when the component mounts
     useEffect(() => {
         fetch("http://localhost:8080/list-files")
-            .then((response) => response.json())
+            .then(async (response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                if (!text) {
+                    console.warn("Empty response body");
+                    return [];
+                }
+                return JSON.parse(text);
+            })
             .then((data) => {
                 console.log("Fetched images:", data);
                 setImages(data);

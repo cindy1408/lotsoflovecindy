@@ -9,3 +9,7 @@ start:
 	@echo "→ Starting Go backend and UI"
 	cd backend && go run main.go & \
 	cd ui && npm start
+
+.PHONY: rebuild
+rebuild:
+	docker-compose down &&  docker-compose up
