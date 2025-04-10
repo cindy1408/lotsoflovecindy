@@ -19,13 +19,13 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		var fileURLs []string
-		for _, post := range posts {
-			fileURLs = append(fileURLs, post.ContentURL)
-		}
+		//var fileURLs []string
+		//for _, post := range posts {
+		//	fileURLs = append(fileURLs, post.ContentURL)
+		//}
 
 		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(fileURLs)
+		err = json.NewEncoder(w).Encode(posts)
 		if err != nil {
 			log.Printf("json.NewEncoder(w).Encode(fileURLs): %v", err)
 			http.Error(w, "json.NewEncoder(w).Encode(fileURLs)", http.StatusInternalServerError)

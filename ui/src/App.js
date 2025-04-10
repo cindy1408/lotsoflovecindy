@@ -59,6 +59,10 @@ function App() {
         }
     };
 
+    const handleDescriptionUpdate = (newDescription) => {
+        setSelectedDescription(newDescription);
+    };
+
     // === Render ===
     return (
         <div className="App">
@@ -83,6 +87,7 @@ function App() {
                     setSelectedImage(null);
                     setSelectedDescription("");
                 }}
+                updatedDescription={handleDescriptionUpdate}
             />
         </div>
     );

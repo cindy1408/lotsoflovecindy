@@ -27,6 +27,7 @@ func main() {
 
 	http.HandleFunc("/upload", uploadHandler(db))
 	http.HandleFunc("/list-files", handlers.RetrieveHandler(db))
+	http.HandleFunc("/update-description", updateHandler(db))
 
 	fmt.Println("Server started on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", corsHandler.Handler(http.DefaultServeMux)))

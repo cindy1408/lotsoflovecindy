@@ -28,3 +28,11 @@ func CreatePost(db *gorm.DB, post *models.Post) error {
 	}
 	return nil
 }
+
+//func UpdatePost(db *gorm.DB, post *models.Post) error {
+//	// Save to database
+//	if err := db.Save(post).Error; err != nil {
+//		return err
+//	}
+//	return nil
+//}
