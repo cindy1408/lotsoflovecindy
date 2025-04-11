@@ -64,7 +64,7 @@ function App() {
     };
 
     const handleDescriptionUpdate = async (newDescription) => {
-        console.log("selected image: ", selectedImage)
+        console.log("selected image: ", selectedImage);
 
         const formData = new FormData();
         formData.append("id", selectedImage.ID);
@@ -80,14 +80,24 @@ function App() {
             const message = await response.text();
             alert(message);
 
-            // Refresh image gallery after upload
-            fetchImages();
-        } catch (error) {
-            console.error("Upload failed:", error);
-            alert("Failed to upload file");
-        }
+            // Update the description of the selected image in the images array
+            setImages((prevImages) =>
+                prevImages.map((image) =>
+                    image.ID === selectedImage.ID
+                        ? { ...image, Description: newDescription }
+                        : image
+                )
+            );
 
-        setImages(newDescription);
+            // Also update the selectedImage directly to reflect changes in the modal
+            setSelectedImage((prevImage) => ({
+                ...prevImage,
+                Description: newDescription,
+            }));
+        } catch (error) {
+            console.error("Update failed:", error);
+            alert("Failed to update description");
+        }
     };
 
     // === Render ===

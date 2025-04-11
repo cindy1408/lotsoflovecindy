@@ -146,6 +146,6 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// Respond with success
-		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL) //nolint:errcheck
+		//fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL) //nolint:errcheck
 	}
 }
