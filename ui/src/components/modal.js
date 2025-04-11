@@ -14,9 +14,13 @@ function ImageModal({ image, description, onClose, updatedDescription }) {
 
     const handleBlur = () => {
         if (editedDescription !== description) {
-            updatedDescription(editedDescription);
+            updatedDescription(editedDescription); // Update the parent component's description
         }
-        setEditMode(false);
+        setEditMode(false); // Exit edit mode
+    };
+
+    const handleDescriptionChange = (e) => {
+        setEditedDescription(e.target.value);
     };
 
     return (
@@ -29,7 +33,7 @@ function ImageModal({ image, description, onClose, updatedDescription }) {
                     <textarea
                         className="description-edit"
                         value={editedDescription}
-                        onChange={(e) => setEditedDescription(e.target.value)}
+                        onChange={handleDescriptionChange}
                         onBlur={handleBlur}
                         autoFocus
                         rows={3}

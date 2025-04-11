@@ -110,7 +110,6 @@ function App() {
                     description={selectedImage.Description}
                     onClose={() => {
                         setSelectedImage(null);
-                        setImages("");
                     }}
                     updatedDescription={handleDescriptionUpdate}
                 />

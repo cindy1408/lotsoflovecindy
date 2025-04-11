@@ -137,7 +137,6 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 
 		// Update the post fields
 		post.Description = description
-		post.Schedule = time.Now()
 
 		// Save the updated post
 		if err := db.Save(&post).Error; err != nil {
