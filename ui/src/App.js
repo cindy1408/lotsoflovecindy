@@ -9,9 +9,7 @@ function App() {
     // State
     const [file, setFile] = useState(null);    // Selected file to upload
     const [images, setImages] = useState([]); // Lists of images objects
-    // const [posts, setPosts] = useState([]); // List of posts
     const [selectedImage, setSelectedImage] = useState(null); // Image url shown in modal
-    const [selectedDescription, setSelectedDescription] = useState(""); // Image description in modal
 
     // Fetch images from server
     const fetchImages = async () => {
@@ -25,6 +23,10 @@ function App() {
 
             const data = JSON.parse(text);
             setImages(data);
+
+            console.log("Raw fetched text:", text);
+            console.log("Parsed JSON data:", data);
+
         } catch (error) {
             console.error("Error fetching images:", error);
         }
@@ -65,8 +67,9 @@ function App() {
         console.log("selected image: ", selectedImage)
 
         const formData = new FormData();
-        formData.append("postUrl", selectedImage);
-        formData.append("updatedDescription", newDescription);
+        formData.append("id", selectedImage.ID);
+        formData.append("url_path", selectedImage.ContentURL);
+        formData.append("description", newDescription);
 
         try {
             const response = await fetch("http://localhost:8080/update-description", {
@@ -84,7 +87,7 @@ function App() {
             alert("Failed to upload file");
         }
 
-        setSelectedDescription(newDescription);
+        setImages(newDescription);
     };
 
     // === Render ===
@@ -95,22 +98,23 @@ function App() {
                 <UploadSection setFile={setFile} handleUpload={handleUpload} />
                 <Gallery
                     images={images}
-                    onImageClick={(url, desc) => {
-                        setSelectedImage(url);
-                        setSelectedDescription(desc);
+                    onImageClick={(image) => {
+                        setSelectedImage(image);
                     }}
                 />
             </header>
 
-            <Modal
-                image={selectedImage}
-                description={selectedDescription}
-                onClose={() => {
-                    setSelectedImage(null);
-                    setSelectedDescription("");
-                }}
-                updatedDescription={handleDescriptionUpdate}
-            />
+            {selectedImage && (
+                <Modal
+                    image={selectedImage.ContentURL}
+                    description={selectedImage.Description}
+                    onClose={() => {
+                        setSelectedImage(null);
+                        setImages("");
+                    }}
+                    updatedDescription={handleDescriptionUpdate}
+                />
+            )}
         </div>
     );
 }

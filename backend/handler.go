@@ -91,49 +91,62 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Update description endpoint hit!")
 
+		// Ensure method is POST
 		if r.Method != http.MethodPost {
-			log.Println("r.METHOD")
+			log.Println("Invalid request method")
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
 		}
 
-		// Get the ID of the post to update from the form data
-		url := r.FormValue("postUrl")
-		if url == "" {
-			log.Println("HERE")
+		// Get the URL of the post to update from the form data
+		id := r.FormValue("id")
+		if id == "" {
+			log.Println("Missing post ID")
 			http.Error(w, "Post ID is required", http.StatusBadRequest)
 			return
 		}
 
+		uuid, err := uuid.Parse(id)
+		if err != nil {
+			log.Print("uuid.Parse")
+		}
+
+		// Get the URL of the post to update from the form data
+		url := r.FormValue("url_path")
+		if url == "" {
+			log.Println("Missing post URL")
+			http.Error(w, "Post URL is required", http.StatusBadRequest)
+			return
+		}
+
 		// Get the updated description from the form data
-		description := r.FormValue("updatedDescription")
+		description := r.FormValue("description")
 		if description == "" {
-			log.Println("HERE 1")
+			log.Println("Missing updated description")
 			http.Error(w, "Description is required", http.StatusBadRequest)
 			return
 		}
 
-		// Find the post by ID
+		// Find the post by URL (assuming postUrl is a unique identifier)
 		var post models.Post
-		if err := db.First(&post, "id = ?", url).Error; err != nil {
+		if err := db.First(&post, "id = ?", uuid).Error; err != nil {
+			log.Println("Post not found:", err)
 			http.Error(w, "Post not found", http.StatusNotFound)
 			return
 		}
 
 		// Update the post fields
-		post.ContentURL = url
 		post.Description = description
 		post.Schedule = time.Now()
 
 		// Save the updated post
 		if err := db.Save(&post).Error; err != nil {
+			log.Println("Failed to update post:", err)
 			http.Error(w, "Failed to update post", http.StatusInternalServerError)
 			return
 		}
 
 		// Respond with success
-		if _, err := fmt.Fprintf(w, "Post updated successfully! URL: %s", url); err != nil {
-			log.Printf("Failed to write response: %v", err)
-		}
+		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL)
 	}
 }

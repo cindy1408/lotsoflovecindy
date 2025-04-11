@@ -12,4 +12,5 @@ start:
 
 .PHONY: rebuild
 rebuild:
-	docker-compose down &&  docker-compose up
+	docker-compose down && docker-compose build --no-cache && docker-compose up
+
