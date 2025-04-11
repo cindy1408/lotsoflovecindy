@@ -7,7 +7,6 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
-	"lotsoflovecindy/m/v2/handlers"
 	"lotsoflovecindy/m/v2/postgres"
 )
 
@@ -26,7 +25,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	http.HandleFunc("/upload", uploadHandler(db))
-	http.HandleFunc("/list-files", handlers.RetrieveHandler(db))
+	http.HandleFunc("/list-files", retrieveHandler(db))
 	http.HandleFunc("/update-description", updateHandler(db))
 
 	fmt.Println("Server started on http://localhost:8080")

@@ -14,6 +14,25 @@ import (
 	"lotsoflovecindy/m/v2/respositories"
 )
 
+func retrieveHandler(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("🔥 RetrieveHandler called")
+		posts, err := respositories.GetAllPosts(db)
+		if err != nil {
+			log.Printf("Failed to get posts: %v", err)
+			http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(posts)
+		if err != nil {
+			log.Printf("json.NewEncoder(w).Encode(fileURLs): %v", err)
+			http.Error(w, "json.NewEncoder(w).Encode(fileURLs)", http.StatusInternalServerError)
+		}
+	}
+}
+
 // Upload handler which accepts the db connection
 func uploadHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -70,46 +89,39 @@ func uploadHandler(db *gorm.DB) http.HandlerFunc {
 
 func updateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Received request at /update-description")
+		fmt.Println("Update description endpoint hit!")
 
 		if r.Method != http.MethodPost {
+			log.Println("r.METHOD")
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
 		}
 
 		// Get the ID of the post to update from the form data
-		postID := r.FormValue("id")
-		if postID == "" {
+		url := r.FormValue("postUrl")
+		if url == "" {
 			log.Println("HERE")
 			http.Error(w, "Post ID is required", http.StatusBadRequest)
 			return
 		}
 
 		// Get the updated description from the form data
-		description := r.FormValue("description")
+		description := r.FormValue("updatedDescription")
 		if description == "" {
 			log.Println("HERE 1")
 			http.Error(w, "Description is required", http.StatusBadRequest)
 			return
 		}
 
-		// Get the file URL from the form data
-		fileURL := r.FormValue("fileURL")
-		if fileURL == "" {
-			log.Println("HERE 2")
-			http.Error(w, "File URL is required", http.StatusBadRequest)
-			return
-		}
-
 		// Find the post by ID
 		var post models.Post
-		if err := db.First(&post, "id = ?", postID).Error; err != nil {
+		if err := db.First(&post, "id = ?", url).Error; err != nil {
 			http.Error(w, "Post not found", http.StatusNotFound)
 			return
 		}
 
 		// Update the post fields
-		post.ContentURL = fileURL
+		post.ContentURL = url
 		post.Description = description
 		post.Schedule = time.Now()
 
@@ -120,7 +132,7 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// Respond with success
-		if _, err := fmt.Fprintf(w, "Post updated successfully! URL: %s", fileURL); err != nil {
+		if _, err := fmt.Fprintf(w, "Post updated successfully! URL: %s", url); err != nil {
 			log.Printf("Failed to write response: %v", err)
 		}
 	}

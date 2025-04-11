@@ -8,13 +8,15 @@ import Modal from "./components/modal";
 function App() {
     // State
     const [file, setFile] = useState(null);    // Selected file to upload
-    const [images, setImages] = useState([]); // List of image URLs
-    const [selectedImage, setSelectedImage] = useState(null); // Image shown in modal
+    const [images, setImages] = useState([]); // Lists of images objects
+    // const [posts, setPosts] = useState([]); // List of posts
+    const [selectedImage, setSelectedImage] = useState(null); // Image url shown in modal
     const [selectedDescription, setSelectedDescription] = useState(""); // Image description in modal
 
     // Fetch images from server
     const fetchImages = async () => {
         try {
+            console.log("Fetching images...")
             const response = await fetch("http://localhost:8080/list-files");
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
@@ -59,7 +61,29 @@ function App() {
         }
     };
 
-    const handleDescriptionUpdate = (newDescription) => {
+    const handleDescriptionUpdate = async (newDescription) => {
+        console.log("selected image: ", selectedImage)
+
+        const formData = new FormData();
+        formData.append("postUrl", selectedImage);
+        formData.append("updatedDescription", newDescription);
+
+        try {
+            const response = await fetch("http://localhost:8080/update-description", {
+                method: "POST",
+                body: formData,
+            });
+
+            const message = await response.text();
+            alert(message);
+
+            // Refresh image gallery after upload
+            fetchImages();
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Failed to upload file");
+        }
+
         setSelectedDescription(newDescription);
     };
 
@@ -68,9 +92,7 @@ function App() {
         <div className="App">
             <header className="App-header">
                 <Header />
-
                 <UploadSection setFile={setFile} handleUpload={handleUpload} />
-
                 <Gallery
                     images={images}
                     onImageClick={(url, desc) => {
