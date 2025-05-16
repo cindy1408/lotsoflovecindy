@@ -17,12 +17,11 @@ func main() {
 		AllowedHeaders: []string{"Content-Type"},
 	})
 
+	log.Println("HEREEEEEEE")
 	db, err := postgres.Connection()
 	if err != nil {
 		return
 	}
-
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	http.HandleFunc("/upload", uploadHandler(db))
 	http.HandleFunc("/list-files", retrieveHandler(db))
