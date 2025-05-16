@@ -76,7 +76,7 @@ function App() {
                 method: "POST",
                 body: formData,
             });
-:
+
             await response.text();
 
             // Update the description of the selected image in the images array
