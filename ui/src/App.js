@@ -76,9 +76,8 @@ function App() {
                 method: "POST",
                 body: formData,
             });
-
-            const message = await response.text();
-            alert(message);
+:
+            await response.text();
 
             // Update the description of the selected image in the images array
             setImages((prevImages) =>
