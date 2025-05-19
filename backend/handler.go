@@ -150,13 +150,13 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 func deleteHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure method is POST
-		log.Println("HEREEEE??")
 		if r.Method != http.MethodPost {
 			log.Println("Invalid request method")
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
 		}
 
+		log.Println("YO HERE")
 		// Get the URL of the post to delete from the form data
 		url := r.FormValue("url")
 		if url == "" {
