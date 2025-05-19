@@ -61,6 +61,13 @@ function App() {
         }
     };
 
+    const handleDelete = (imageUrl) => {
+        console.log("handleDelete called with:", imageUrl);
+        setImages((prev) => prev.filter((img) => img.URL !== imageUrl));
+        setSelectedImage(null);
+        fetchImages();
+    };
+
     const handleDescriptionUpdate = async (newDescription) => {
         console.log("selected image: ", selectedImage);
 
@@ -120,6 +127,7 @@ function App() {
                     }}
                     updatedDescription={handleDescriptionUpdate}
                     dateCreated={selectedImage.DateCreated}
+                    onDelete={handleDelete}
                 />
             )}
         </div>

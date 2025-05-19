@@ -88,8 +88,6 @@ func uploadHandler(db *gorm.DB) http.HandlerFunc {
 
 func updateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Update description endpoint hit!")
-
 		// Ensure method is POST
 		if r.Method != http.MethodPost {
 			log.Println("Invalid request method")
@@ -146,5 +144,42 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 
 		// Respond with success
 		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL) //nolint:errcheck
+	}
+}
+
+func deleteHandler(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Ensure method is POST
+		log.Println("HEREEEE??")
+		if r.Method != http.MethodPost {
+			log.Println("Invalid request method")
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Get the URL of the post to delete from the form data
+		url := r.FormValue("url")
+		if url == "" {
+			log.Println("Missing post URL")
+			http.Error(w, "Post URL is required", http.StatusBadRequest)
+			return
+		}
+
+		// Find the post by URL (assuming postUrl is a unique identifier)
+		if err := db.Delete(&models.Post{}, "content_url = ?", url).Error; err != nil {
+			log.Println("Failed to delete post:", err)
+			http.Error(w, "Failed to delete post", http.StatusInternalServerError)
+			return
+		}
+
+		err := gcs.DeleteFileFromGCS(url)
+		if err != nil {
+			log.Println("Failed to delete gcs post:", err)
+			http.Error(w, "Failed to delete gcs post", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Post deleted successfully"))
 	}
 }
