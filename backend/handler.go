@@ -16,7 +16,6 @@ import (
 
 func retrieveHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("🔥 RetrieveHandler called")
 		posts, err := respositories.GetAllPosts(db)
 		if err != nil {
 			log.Printf("Failed to get posts: %v", err)

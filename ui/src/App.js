@@ -51,9 +51,7 @@ function App() {
                 method: "POST",
                 body: formData,
             });
-
-            const message = await response.text();
-            alert(message);
+            await response.text();
 
             // Refresh image gallery after upload
             fetchImages();
@@ -121,6 +119,7 @@ function App() {
                         setSelectedImage(null);
                     }}
                     updatedDescription={handleDescriptionUpdate}
+                    dateCreated={selectedImage.DateCreated}
                 />
             )}
         </div>

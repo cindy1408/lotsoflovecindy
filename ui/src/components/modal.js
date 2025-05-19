@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function ImageModal({ image, description, onClose, updatedDescription }) {
+function ImageModal({ image, description, onClose, updatedDescription, dateCreated}) {
     const [editMode, setEditMode] = useState(false);
     const [editedDescription, setEditedDescription] = useState(description);
 
@@ -25,25 +25,31 @@ function ImageModal({ image, description, onClose, updatedDescription }) {
                 <span className="close" onClick={onClose}>&times;</span>
                 <img src={image} alt="Enlarged view" className="enlarged-img" />
 
-                {editMode ? (
-                    <textarea
-                        className="description-edit"
-                        value={editedDescription}
-                        onChange={(e) => setEditedDescription(e.target.value)}
-                        onBlur={handleBlur}
-                        autoFocus
-                        rows={3}
-                    />
-                ) : (
-                    <div
-                        className="description-view"
-                        onClick={() => setEditMode(true)}
-                        style={{ cursor: "pointer" }}
-                        title="Click to edit"
-                    >
-                        <p>{description || <em>(Click to add a description)</em>}</p>
-                    </div>
-                )}
+                <div>
+                    <p>
+                        <em>Date Uploaded: </em>
+                        {new Date(dateCreated).toLocaleDateString()}
+                    </p>
+                    {editMode ? (
+                        <textarea
+                            className="description-edit"
+                            value={editedDescription}
+                            onChange={(e) => setEditedDescription(e.target.value)}
+                            onBlur={handleBlur}
+                            autoFocus
+                            rows={3}
+                        />
+                    ) : (
+                        <div
+                            className="description-view"
+                            onClick={() => setEditMode(true)}
+                            style={{ cursor: "pointer" }}
+                            title="Click to edit"
+                        >
+                            <p>{description || <em>(Click to add a description)</em>}</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
