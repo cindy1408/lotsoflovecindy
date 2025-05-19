@@ -30,7 +30,7 @@ services:
       DB_NAME: lotsoflovecindy
       GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
     volumes:
-      - /Users/cindycheung/Documents/Software/lotsoflovecindy/credentials.json:/app/credentials.json
+      - /Users/cindycheung/lotsoflovecindy/credentials.json:/app/credentials.json
 
 volumes:
   pgdata:

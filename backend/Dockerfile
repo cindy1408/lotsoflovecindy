@@ -3,11 +3,11 @@ FROM golang:1.24
 
 WORKDIR /app
 
-COPY backend/go.mod ./
-COPY backend/go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 RUN go mod download
 
-COPY .. .
+COPY ../.. .
 
 RUN go build -o main .
 
