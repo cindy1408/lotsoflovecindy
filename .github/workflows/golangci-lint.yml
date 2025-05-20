@@ -24,7 +24,7 @@ jobs:
         with:
           go-version: stable
 
-      - name: Run gci to fix imports
+      - name: Install and run gci to fix imports
         run: |
           go install github.com/daixiang0/gci@latest
           gci write .

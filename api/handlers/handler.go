@@ -7,15 +7,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"lotsoflovecindy/m/v2/gcs"
 	"lotsoflovecindy/m/v2/models"
 	"lotsoflovecindy/m/v2/respositories"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		posts, err := respositories.GetAllPosts(db)
 		if err != nil {
 			log.Printf("Failed to get posts: %v", err)
@@ -32,7 +33,7 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-// Upload handler which accepts the db connection
+// UploadHandler which accepts the db connection
 func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Received request at /upload")
@@ -156,7 +157,6 @@ func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		log.Println("YO HERE")
 		// Get the URL of the post to delete from the form data
 		url := r.FormValue("url")
 		if url == "" {

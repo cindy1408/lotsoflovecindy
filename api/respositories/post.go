@@ -3,12 +3,13 @@ package respositories
 import (
 	"time"
 
+	"lotsoflovecindy/m/v2/models"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"lotsoflovecindy/m/v2/models"
 )
 
-//CRUD logic (your Get, Update, Delete functions)
+// CRUD logic (your Get, Update, Delete functions)
 
 func GetAllPosts(db *gorm.DB) ([]models.Post, error) {
 	var posts []models.Post
@@ -29,7 +30,7 @@ func CreatePost(db *gorm.DB, post *models.Post) error {
 	return nil
 }
 
-//func UpdatePost(db *gorm.DB, post *models.Post) error {
+// func UpdatePost(db *gorm.DB, post *models.Post) error {
 //	// Save to database
 //	if err := db.Save(post).Error; err != nil {
 //		return err

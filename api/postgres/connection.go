@@ -6,9 +6,10 @@ import (
 	"os"
 	"time"
 
+	"lotsoflovecindy/m/v2/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"lotsoflovecindy/m/v2/models"
 )
 
 func Connection() (*gorm.DB, error) {

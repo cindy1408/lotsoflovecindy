@@ -1,9 +1,20 @@
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - gofmt
+    - goimports
+    - gocritic
+    - revive
+
 linters-settings:
   errcheck:
-    check-type-assertions: true
-
-exclude-rules:
-  - path: .*\.go
-    linters:
-      - errcheck
-    text: "defer .*Close\\(\\)"
+    exclude-functions:
+      - (io.Closer).Close
+      - (net/http.ResponseWriter).Write
+      - (github.com/your/package/name.Client).Close
