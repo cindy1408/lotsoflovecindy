@@ -4,7 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
-backend/vendor
+api/vendor
 /ui/node_modules/
 
 # testing

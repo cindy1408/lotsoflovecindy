@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
+	"lotsoflovecindy/m/v2/handlers"
 	"lotsoflovecindy/m/v2/postgres"
 )
 
@@ -22,10 +23,10 @@ func main() {
 		return
 	}
 
-	http.HandleFunc("/upload", uploadHandler(db))
-	http.HandleFunc("/list-files", retrieveHandler(db))
-	http.HandleFunc("/update-description", updateHandler(db))
-	http.HandleFunc("/delete-post", deleteHandler(db))
+	http.HandleFunc("/upload", handlers.UploadHandler(db))
+	http.HandleFunc("/list-files", handlers.RetrieveHandler(db))
+	http.HandleFunc("/update-description", handlers.UpdateHandler(db))
+	http.HandleFunc("/delete-post", handlers.DeleteHandler(db))
 
 	fmt.Println("Server started on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", corsHandler.Handler(http.DefaultServeMux)))

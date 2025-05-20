@@ -2,12 +2,13 @@ package postgres
 
 import (
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
-	"lotsoflovecindy/m/v2/models"
 	"os"
 	"time"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"lotsoflovecindy/m/v2/models"
 )
 
 func Connection() (*gorm.DB, error) {

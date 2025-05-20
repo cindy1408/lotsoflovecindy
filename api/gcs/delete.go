@@ -1,10 +1,11 @@
 package gcs
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
 	"strings"
+
+	"cloud.google.com/go/storage"
 )
 
 func DeleteFileFromGCS(objectName string) error {

@@ -16,7 +16,7 @@ services:
 
   app:
     build:
-      context: ./backend
+      context: api
     container_name: my-go-app
     depends_on:
       - db

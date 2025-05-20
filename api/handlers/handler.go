@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 	"lotsoflovecindy/m/v2/respositories"
 )
 
-func retrieveHandler(db *gorm.DB) http.HandlerFunc {
+func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		posts, err := respositories.GetAllPosts(db)
 		if err != nil {
@@ -33,7 +33,7 @@ func retrieveHandler(db *gorm.DB) http.HandlerFunc {
 }
 
 // Upload handler which accepts the db connection
-func uploadHandler(db *gorm.DB) http.HandlerFunc {
+func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Received request at /upload")
 
@@ -86,7 +86,7 @@ func uploadHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-func updateHandler(db *gorm.DB) http.HandlerFunc {
+func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure method is POST
 		if r.Method != http.MethodPost {
@@ -147,7 +147,7 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-func deleteHandler(db *gorm.DB) http.HandlerFunc {
+func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure method is POST
 		if r.Method != http.MethodPost {
@@ -180,6 +180,6 @@ func deleteHandler(db *gorm.DB) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Post deleted successfully"))
+		w.Write([]byte("Post deleted successfully")) //nolint:errcheck
 	}
 }
