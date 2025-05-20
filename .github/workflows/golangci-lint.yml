@@ -34,5 +34,5 @@ jobs:
         with:
           version: latest
           install-mode: "goinstall"
-          working-directory: backend
+          working-directory: api
           args: --fix --timeout=5m ./...
