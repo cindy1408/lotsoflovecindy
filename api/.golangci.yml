@@ -1,0 +1,9 @@
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+
+exclude-rules:
+  - path: .*\.go
+    linters:
+      - errcheck
+    text: "defer .*Close\\(\\)"

@@ -14,7 +14,7 @@ func DeleteFileFromGCS(objectName string) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer client.Close() //nolint:errcheck
 
 	bucket := client.Bucket(bucketName)
 	const prefix = "https://storage.googleapis.com/lotsoflovecindy/"
