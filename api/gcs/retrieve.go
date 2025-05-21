@@ -11,6 +11,7 @@ import (
 	"google.golang.org/api/iterator"
 )
 
+// RetrieveAllFilesFromGCS retrieves posts from gcs
 func RetrieveAllFilesFromGCS(w http.ResponseWriter) error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)

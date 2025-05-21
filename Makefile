@@ -1,6 +1,6 @@
 .PHONY: fmt
 fmt:
-	@echo "→ Running gci and golangci-lint in ./backend"
+	@echo "→ Running gci and golangci-lint in ./api"
 	cd api && gci write .
 	cd api && golangci-lint run --fix -v ./...
 

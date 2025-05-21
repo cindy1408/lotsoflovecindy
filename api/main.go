@@ -1,3 +1,4 @@
+//nolint:revive
 package main
 
 import (
@@ -5,11 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"lotsoflovecindy/m/v2/handlers"
-	"lotsoflovecindy/m/v2/postgres"
-
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
+	"lotsoflovecindy/m/v2/handlers"
+	"lotsoflovecindy/m/v2/postgres"
 )
 
 func main() {

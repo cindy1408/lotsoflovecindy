@@ -7,14 +7,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 	"lotsoflovecindy/m/v2/gcs"
 	"lotsoflovecindy/m/v2/models"
 	"lotsoflovecindy/m/v2/respositories"
-
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
+// RetrieveHandler getting post from gcs
 func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		posts, err := respositories.GetAllPosts(db)
@@ -63,8 +63,8 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 		post := &models.Post{
 			ID:          uuid.New(),
 			ContentURL:  fileURL,
-			Description: r.FormValue("description"), // optional: capture the description from form
-			Schedule:    time.Now(),                 // or capture from form
+			Description: r.FormValue("description"),
+			Schedule:    time.Now(),
 			DateCreated: time.Now(),
 		}
 
@@ -87,6 +87,7 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
+// UpdateHandler which accepts the db connection
 func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure method is POST
@@ -143,11 +144,11 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Respond with success
 		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL) //nolint:errcheck
 	}
 }
 
+// DeleteHandler which accepts the db connection
 func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure method is POST

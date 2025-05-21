@@ -8,6 +8,7 @@ import (
 	"cloud.google.com/go/storage"
 )
 
+// DeleteFileFromGCS deletes posts from gcs
 func DeleteFileFromGCS(objectName string) error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)

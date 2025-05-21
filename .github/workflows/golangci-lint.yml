@@ -1,15 +1,12 @@
 name: golangci-lint
-
 on:
   push:
     branches:
       - main
       - master
   pull_request:
-
 permissions:
   contents: read
-
 jobs:
   golangci:
     name: lint
@@ -17,22 +14,20 @@ jobs:
     defaults:
       run:
         working-directory: api
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: stable
-
       - name: Install and run gci to fix imports
         run: |
           go install github.com/daixiang0/gci@latest
           gci write .
-
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
           version: latest
           install-mode: "goinstall"
           working-directory: api
+          config-path: .golangci.yml
           args: --fix --timeout=5m ./...

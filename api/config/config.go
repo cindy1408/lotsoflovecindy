@@ -1,1 +1,2 @@
+//nolint:revive
 package config

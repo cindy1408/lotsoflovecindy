@@ -3,14 +3,14 @@ package respositories
 import (
 	"time"
 
-	"lotsoflovecindy/m/v2/models"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"lotsoflovecindy/m/v2/models"
 )
 
 // CRUD logic (your Get, Update, Delete functions)
 
+// GetAllPosts get all post
 func GetAllPosts(db *gorm.DB) ([]models.Post, error) {
 	var posts []models.Post
 	if err := db.Order("date_created desc").Find(&posts).Error; err != nil {
@@ -19,6 +19,7 @@ func GetAllPosts(db *gorm.DB) ([]models.Post, error) {
 	return posts, nil
 }
 
+// CreatePost get all post
 func CreatePost(db *gorm.DB, post *models.Post) error {
 	post.ID = uuid.New()
 	post.DateCreated = time.Now()

@@ -6,12 +6,12 @@ import (
 	"os"
 	"time"
 
-	"lotsoflovecindy/m/v2/models"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"lotsoflovecindy/m/v2/models"
 )
 
+// Connection connects to server
 func Connection() (*gorm.DB, error) {
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")

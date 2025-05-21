@@ -12,6 +12,7 @@ import (
 
 const bucketName = "lotsoflovecindy"
 
+// UploadFileToGCS uploads posts to gcs
 func UploadFileToGCS(w http.ResponseWriter, file io.Reader, fileName string) (string, error) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
