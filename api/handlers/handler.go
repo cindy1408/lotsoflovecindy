@@ -14,7 +14,7 @@ import (
 	"lotsoflovecindy/m/v2/respositories"
 )
 
-// RetrieveHandler getting post from gcs
+// RetrieveHandler handles the HTTP requests to retrieve all posts from database and returns the posts in json.
 func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		posts, err := respositories.GetAllPosts(db)
@@ -33,7 +33,7 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-// UploadHandler which accepts the db connection
+// UploadHandler handles the HTTP requests to upload a post to the database and returns the posts in json.
 func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Received request at /upload")
@@ -87,7 +87,7 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-// UpdateHandler which accepts the db connection
+// UpdateHandler handles the HTTP requests to update a post to the database and returns the posts in json.
 func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure method is POST
@@ -148,7 +148,7 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-// DeleteHandler which accepts the db connection
+// DeleteHandler handles the HTTP requests to delete a post to the database.
 func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure method is POST
@@ -166,17 +166,42 @@ func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Find the post by URL (assuming postUrl is a unique identifier)
-		if err := db.Delete(&models.Post{}, "content_url = ?", url).Error; err != nil {
+		// Start a database transaction
+		tx := db.Begin()
+		if tx.Error != nil {
+			log.Println("Failed to begin transaction:", tx.Error)
+			http.Error(w, "Failed to begin transaction", http.StatusInternalServerError)
+			return
+		}
+
+		// Defer rollback in case of any failure
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+				panic(r)
+			}
+		}()
+
+		// Delete the post from database
+		if err := tx.Delete(&models.Post{}, "content_url = ?", url).Error; err != nil {
 			log.Println("Failed to delete post:", err)
+			tx.Rollback()
 			http.Error(w, "Failed to delete post", http.StatusInternalServerError)
 			return
 		}
 
-		err := gcs.DeleteFileFromGCS(url)
-		if err != nil {
+		// Delete file from GCS
+		if err := gcs.DeleteFileFromGCS(url); err != nil {
 			log.Println("Failed to delete gcs post:", err)
+			tx.Rollback()
 			http.Error(w, "Failed to delete gcs post", http.StatusInternalServerError)
+			return
+		}
+
+		// Commit the transaction
+		if err := tx.Commit().Error; err != nil {
+			log.Println("Failed to commit transaction:", err)
+			http.Error(w, "Failed to commit transaction", http.StatusInternalServerError)
 			return
 		}
 
