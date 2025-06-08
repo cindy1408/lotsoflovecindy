@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"encoding/json"
+	"google.golang.org/api/option"
 	"os"
 	"time"
 )
@@ -13,20 +14,21 @@ type serviceAccountJSON struct {
 	PrivateKey  string `json:"private_key"`
 }
 
-const serviceAccount = "../../credentials.json"
+const serviceAccount = "../credentials.json"
 
 func GenerateSignedURL(bucket, object string) (string, error) {
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return "", err
-	}
-	defer client.Close()
 
 	credsJSON, err := os.ReadFile(serviceAccount)
 	if err != nil {
 		return "", err
 	}
+
+	client, err := storage.NewClient(ctx, option.WithCredentialsJSON(credsJSON))
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
 
 	var sa serviceAccountJSON
 	if err = json.Unmarshal(credsJSON, &sa); err != nil {
@@ -42,5 +44,6 @@ func GenerateSignedURL(bucket, object string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return url, nil
 }

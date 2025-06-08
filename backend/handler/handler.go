@@ -24,6 +24,21 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
+		const bucketName = "lotsoflovecindy"
+		gcsBaseURL := "https://storage.googleapis.com/" + bucketName + "/"
+
+		for i, post := range posts {
+			if len(post.ContentURL) > len(gcsBaseURL) && post.ContentURL[:len(gcsBaseURL)] == gcsBaseURL {
+				objectName := post.ContentURL[len(gcsBaseURL):]
+				signedURL, err := gcs.GenerateSignedURL(bucketName, objectName)
+				if err != nil {
+					log.Printf("Failed to sign URL for object %s: %v", objectName, err)
+					continue // fallback: leave original URL
+				}
+				posts[i].ContentURL = signedURL
+			}
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(posts)
 		if err != nil {

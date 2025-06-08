@@ -22,7 +22,6 @@ func CreatePost(db *gorm.DB, post *models.Post) error {
 	post.ID = uuid.New()
 	post.DateCreated = time.Now()
 
-	// Save to database
 	if err := db.Create(post).Error; err != nil {
 		return err
 	}
