@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 	"lotsoflovecindy/m/v2/respositories"
 )
 
-func retrieveHandler(db *gorm.DB) http.HandlerFunc {
+func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("🔥 RetrieveHandler called")
 		posts, err := respositories.GetAllPosts(db)
@@ -33,8 +33,8 @@ func retrieveHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-// Upload handler which accepts the db connection
-func uploadHandler(db *gorm.DB) http.HandlerFunc {
+// UploadHandler which accepts the db connection
+func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Received request at /upload")
 
@@ -87,7 +87,7 @@ func uploadHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-func updateHandler(db *gorm.DB) http.HandlerFunc {
+func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Update description endpoint hit!")
 
@@ -146,6 +146,6 @@ func updateHandler(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// Respond with success
-		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL) //nolint:errcheck
+		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL)
 	}
 }

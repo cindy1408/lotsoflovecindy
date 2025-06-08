@@ -6,16 +6,15 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"lotsoflovecindy/m/v2/models"
-	"os"
 	"time"
 )
 
 func Connection() (*gorm.DB, error) {
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
+	host := "localhost"
+	port := "5433"
+	user := "user"
+	password := "password"
+	dbname := "lotsoflovecindy"
 
 	fmt.Println("DB ENV:", host, port, user, password, dbname)
 
@@ -28,15 +27,11 @@ func Connection() (*gorm.DB, error) {
 	var err error
 
 	// Retry for up to 10 seconds
-	for i := 0; i < 10; i++ {
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		if err == nil {
-			fmt.Println("Successfully connected to the database!")
-			break
-		}
-		fmt.Printf("Retrying DB connection (%d/10): %v\n", i+1, err)
-		time.Sleep(1 * time.Second)
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err == nil {
+		fmt.Println("Successfully connected to the database!")
 	}
+	time.Sleep(1 * time.Second)
 
 	if err != nil {
 		log.Fatalf("Error opening DB: %v", err)
