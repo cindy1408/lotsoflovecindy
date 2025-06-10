@@ -47,3 +47,36 @@ func GenerateSignedURL(bucket, object string) (string, error) {
 
 	return url, nil
 }
+
+func GenerateUploadSignedUploadURL(bucket, object, contentType string) (string, error) {
+	ctx := context.Background()
+
+	credsJSON, err := os.ReadFile(serviceAccount)
+	if err != nil {
+		return "", err
+	}
+
+	client, err := storage.NewClient(ctx, option.WithCredentialsJSON(credsJSON))
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	var sa serviceAccountJSON
+	if err = json.Unmarshal(credsJSON, &sa); err != nil {
+		return "", err
+	}
+
+	url, err := storage.SignedURL(bucket, object, &storage.SignedURLOptions{
+		GoogleAccessID: sa.ClientEmail,
+		PrivateKey:     []byte(sa.PrivateKey),
+		Method:         "PUT",
+		Expires:        time.Now().Add(15 * time.Minute),
+		ContentType:    contentType,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return url, nil
+}

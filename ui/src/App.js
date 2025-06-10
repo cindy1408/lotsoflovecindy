@@ -44,24 +44,42 @@ function App() {
         }
 
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("filename", file.name);
+        formData.append("contentType", file.type);
+
+        console.log(file.name)
 
         try {
+            // Step 1: Get signed upload URL from server
             const response = await fetch("http://localhost:8080/upload", {
                 method: "POST",
                 body: formData,
             });
 
-            const message = await response.text();
-            alert(message);
+            const { signedUrl, publicUrl } = await response.json();
 
-            // Refresh image gallery after upload
-            fetchImages();
+            // Step 2: Upload directly to Google Cloud Storage
+            const uploadResponse = await fetch(signedUrl, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": file.type,
+                },
+                body: file,
+            });
+
+            if (uploadResponse.ok) {
+                alert("Upload successful!");
+                console.log("File accessible at:", publicUrl);
+                fetchImages();
+            } else {
+                alert("Upload failed.");
+            }
         } catch (error) {
             console.error("Upload failed:", error);
             alert("Failed to upload file");
         }
     };
+
 
     const handleDescriptionUpdate = async (newDescription) => {
         console.log("selected image: ", selectedImage);

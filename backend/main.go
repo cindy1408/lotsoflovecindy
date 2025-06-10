@@ -15,7 +15,7 @@ func main() {
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"},
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"}, // Allow necessary methods, including OPTIONS for preflight
-		AllowedHeaders: []string{"Content-Type"},
+		//AllowedHeaders: []string{"Content-Type"},
 	})
 
 	db, err := postgres.Connection()

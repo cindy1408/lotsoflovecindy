@@ -3,15 +3,13 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
-	"time"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"log"
 	"lotsoflovecindy/m/v2/gcs"
 	"lotsoflovecindy/m/v2/models"
 	"lotsoflovecindy/m/v2/respositories"
+	"net/http"
 )
 
 func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
@@ -51,54 +49,53 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 // UploadHandler which accepts the db connection
 func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Received request at /upload")
+		log.Println("Received request at /upload (for signed URL)")
 
 		if r.Method != http.MethodPost {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
 		}
 
-		file, header, err := r.FormFile("file")
+		filename := r.FormValue("filename")
+		if filename == "" {
+			http.Error(w, "Missing filename", http.StatusBadRequest)
+			return
+		}
+
+		contentType := r.FormValue("contentType")
+		if contentType == "" {
+			contentType = "application/octet-stream" // fallback
+		}
+
+		const bucketName = "lotsoflovecindy"
+
+		// Generate signed URL for PUT
+		signedURL, err := gcs.GenerateUploadSignedUploadURL(bucketName, filename, contentType)
 		if err != nil {
-			http.Error(w, "Failed to get file from request", http.StatusBadRequest)
-			return
-		}
-		defer file.Close() //nolint:errcheck
-
-		log.Printf("File received: %s", header.Filename)
-
-		// Upload file to GCS and get the file URL
-		fileURL, err := gcs.UploadFileToGCS(w, file, header.Filename)
-		if err != nil {
-			http.Error(w, "Failed to upload file", http.StatusInternalServerError)
+			log.Printf("Failed to generate signed URL: %v", err)
+			http.Error(w, "Failed to generate signed URL", http.StatusInternalServerError)
 			return
 		}
 
-		// Create new post in the database with the file URL
-		post := &models.Post{
-			ID:          uuid.New(),
-			ContentURL:  fileURL,
-			Description: r.FormValue("description"), // optional: capture the description from form
-			Schedule:    time.Now(),                 // or capture from form
-			DateCreated: time.Now(),
-		}
-
-		if err := respositories.CreatePost(db, post); err != nil {
-			http.Error(w, "Failed to create post", http.StatusInternalServerError)
-			return
-		}
-
-		// Respond with the post ID and file URL (send back to UI)
+		// Respond with the signed URL
 		response := map[string]string{
-			"id":      post.ID.String(),
-			"fileURL": fileURL,
+			"signedUrl": signedURL,
+			"publicUrl": fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, filename),
 		}
-		responseData, _ := json.Marshal(response)
-		w.Header().Set("Content-Type", "application/json")
-		_, err = w.Write(responseData)
+
+		publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, filename)
+
+		err = respositories.CreatePost(db, &models.Post{
+			ContentURL: publicURL,
+		})
 		if err != nil {
-			http.Error(w, "Failed write response", http.StatusInternalServerError)
+			log.Printf("Failed to create post in database: %v", err)
+			http.Error(w, "Failed to create post in database", http.StatusInternalServerError)
+			return
 		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
 	}
 }
 
