@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function ImageModal({ image, description, onClose, updatedDescription }) {
+function ImageModal({ image, description, onClose, updatedDescription, deleteObject }) {
     const [editMode, setEditMode] = useState(false);
     const [editedDescription, setEditedDescription] = useState(description);
 
@@ -44,6 +44,16 @@ function ImageModal({ image, description, onClose, updatedDescription }) {
                         <p>{description || <em>(Click to add a description)</em>}</p>
                     </div>
                 )}
+                <div  onClick={(e) => {
+                    console.log("Delete button clicked!"); // Debug log
+                    e.stopPropagation(); // Prevent event bubbling
+                    if (deleteObject) {
+                        deleteObject();
+                    } else {
+                        console.error("deleteObject function not provided!");
+                    }
+                }}
+                     style={{ cursor: "pointer" }}>Delete</div>
             </div>
         </div>
     );

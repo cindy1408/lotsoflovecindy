@@ -14,8 +14,8 @@ import (
 func main() {
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"},
-		AllowedMethods: []string{"GET", "POST", "OPTIONS"}, // Allow necessary methods, including OPTIONS for preflight
-		//AllowedHeaders: []string{"Content-Type"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // Allow necessary methods, including OPTIONS for preflight
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 
 	db, err := postgres.Connection()
@@ -26,6 +26,7 @@ func main() {
 	http.HandleFunc("/upload", handler.UploadHandler(db))
 	http.HandleFunc("/list-files", handler.RetrieveHandler(db))
 	http.HandleFunc("/update-description", handler.UpdateHandler(db))
+	http.HandleFunc("/delete-post", handler.DeleteHandler(db))
 
 	fmt.Println("Server started on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", corsHandler.Handler(http.DefaultServeMux)))

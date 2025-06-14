@@ -21,7 +21,7 @@ func RetrieveAllFilesFromGCS(w http.ResponseWriter) error {
 	}
 	defer client.Close() //nolint:errcheck
 
-	bucket := client.Bucket(bucketName)
+	bucket := client.Bucket(BucketName)
 	query := &storage.Query{}
 	it := bucket.Objects(ctx, query)
 
@@ -37,7 +37,7 @@ func RetrieveAllFilesFromGCS(w http.ResponseWriter) error {
 			http.Error(w, "Failed to list objects", http.StatusInternalServerError)
 			return err
 		}
-		fileURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, attrs.Name)
+		fileURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", BucketName, attrs.Name)
 		fileURLs = append(fileURLs, fileURL)
 	}
 

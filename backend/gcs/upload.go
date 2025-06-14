@@ -10,8 +10,6 @@ import (
 	"cloud.google.com/go/storage"
 )
 
-const bucketName = "lotsoflovecindy"
-
 func UploadFileToGCS(w http.ResponseWriter, file io.Reader, fileName string) (string, error) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
@@ -22,7 +20,7 @@ func UploadFileToGCS(w http.ResponseWriter, file io.Reader, fileName string) (st
 	}
 	defer client.Close() //nolint:errcheck
 
-	bucket := client.Bucket(bucketName)
+	bucket := client.Bucket(BucketName)
 	object := bucket.Object(fileName)
 	writer := object.NewWriter(ctx)
 
@@ -39,6 +37,6 @@ func UploadFileToGCS(w http.ResponseWriter, file io.Reader, fileName string) (st
 	}
 
 	// Return public URL
-	publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, fileName)
+	publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", BucketName, fileName)
 	return publicURL, nil
 }

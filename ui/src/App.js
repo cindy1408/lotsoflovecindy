@@ -117,6 +117,33 @@ function App() {
         }
     };
 
+    const handleDeleteObject = async () => {
+        console.log("handleDeleteObject called");
+        console.log("selected image: ", selectedImage);
+
+        const formData = new FormData();
+        formData.append("id", selectedImage.ID);
+        formData.append("url_path", selectedImage.ContentURL);
+
+        try {
+            const response = await fetch("http://localhost:8080/delete-post", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Delete failed: ${response.status}`);
+            }
+
+            console.log("Delete successful");
+            // setShowModal(false); // Close the modal
+
+        } catch (error) {
+            console.error("Delete failed:", error);
+            alert("Failed to delete post");
+        }
+    };
+
     // === Render ===
     return (
         <div className="App">
@@ -139,6 +166,7 @@ function App() {
                         setSelectedImage(null);
                     }}
                     updatedDescription={handleDescriptionUpdate}
+                    deleteObject={handleDeleteObject}
                 />
             )}
         </div>

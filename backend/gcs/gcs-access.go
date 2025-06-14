@@ -15,6 +15,7 @@ type serviceAccountJSON struct {
 }
 
 const serviceAccount = "../credentials.json"
+const BucketName = "lotsoflovecindy"
 
 func GenerateSignedURL(bucket, object string) (string, error) {
 	ctx := context.Background()

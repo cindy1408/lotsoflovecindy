@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"cloud.google.com/go/storage"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
@@ -10,11 +12,15 @@ import (
 	"lotsoflovecindy/m/v2/models"
 	"lotsoflovecindy/m/v2/respositories"
 	"net/http"
+	url2 "net/url"
+	"regexp"
+	"strings"
+	"time"
 )
 
 func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("🔥 RetrieveHandler called")
+		log.Println("🔥 RetrieveHandler called")
 		posts, err := respositories.GetAllPosts(db)
 		if err != nil {
 			log.Printf("Failed to get posts: %v", err)
@@ -22,13 +28,12 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		const bucketName = "lotsoflovecindy"
-		gcsBaseURL := "https://storage.googleapis.com/" + bucketName + "/"
+		gcsBaseURL := "https://storage.googleapis.com/" + gcs.BucketName + "/"
 
 		for i, post := range posts {
 			if len(post.ContentURL) > len(gcsBaseURL) && post.ContentURL[:len(gcsBaseURL)] == gcsBaseURL {
 				objectName := post.ContentURL[len(gcsBaseURL):]
-				signedURL, err := gcs.GenerateSignedURL(bucketName, objectName)
+				signedURL, err := gcs.GenerateSignedURL(gcs.BucketName, objectName)
 				if err != nil {
 					log.Printf("Failed to sign URL for object %s: %v", objectName, err)
 					continue // fallback: leave original URL
@@ -67,10 +72,8 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 			contentType = "application/octet-stream" // fallback
 		}
 
-		const bucketName = "lotsoflovecindy"
-
 		// Generate signed URL for PUT
-		signedURL, err := gcs.GenerateUploadSignedUploadURL(bucketName, filename, contentType)
+		signedURL, err := gcs.GenerateUploadSignedUploadURL(gcs.BucketName, filename, contentType)
 		if err != nil {
 			log.Printf("Failed to generate signed URL: %v", err)
 			http.Error(w, "Failed to generate signed URL", http.StatusInternalServerError)
@@ -80,10 +83,10 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 		// Respond with the signed URL
 		response := map[string]string{
 			"signedUrl": signedURL,
-			"publicUrl": fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, filename),
+			"publicUrl": fmt.Sprintf("https://storage.googleapis.com/%s/%s", gcs.BucketName, filename),
 		}
 
-		publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, filename)
+		publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", gcs.BucketName, filename)
 
 		err = respositories.CreatePost(db, &models.Post{
 			ContentURL: publicURL,
@@ -159,5 +162,107 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 
 		// Respond with success
 		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL)
+	}
+}
+
+func DeleteHandler(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Received DELETE request at /delete-post")
+		log.Println("Method:", r.Method)
+		log.Println("Headers:", r.Header)
+
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		const bucketName = "lotsoflovecindy"
+		url := r.FormValue("url_path")
+		id := r.FormValue("id")
+
+		log.Println("Received url_path:", url)
+		log.Println("Received id:", id)
+
+		if url == "" {
+			log.Println("Missing post URL")
+			http.Error(w, "Post URL is required", http.StatusBadRequest)
+			return
+		}
+
+		if id == "" {
+			log.Println("Missing post ID")
+			http.Error(w, "Post ID is required", http.StatusBadRequest)
+			return
+		}
+
+		uuid, err := uuid.Parse(id)
+		if err != nil {
+			log.Println("Error parsing UUID:", err)
+			http.Error(w, "Invalid UUID format", http.StatusBadRequest)
+			return
+		}
+
+		// Extract object name from full URL
+		// Example URL: https://storage.googleapis.com/lotsoflovecindy/Screenshot%202025-05-15%20at%2009.50.54.png?Expires=...
+		// Steps:
+		// 1. Remove query parameters
+		// 2. Remove "https://storage.googleapis.com/<bucketName>/" prefix
+		// Result: "Screenshot 2025-05-15 at 09.50.54.png"
+		reQuery := regexp.MustCompile(`\?.*`)
+		cleaned := reQuery.ReplaceAllString(url, "")
+
+		prefix := "https://storage.googleapis.com/" + bucketName + "/"
+		if !strings.HasPrefix(cleaned, prefix) {
+			log.Println("URL does not start with expected prefix")
+			http.Error(w, "Invalid URL format", http.StatusBadRequest)
+			return
+		}
+		objectName := cleaned[len(prefix):]
+		decoded, err := url2.PathUnescape(objectName)
+		log.Println("Extracted object name:", objectName)
+
+		ctx := context.Background()
+		client, err := storage.NewClient(ctx)
+		if err != nil {
+			log.Println("Error creating storage client:", err)
+			http.Error(w, "Failed to create storage client", http.StatusInternalServerError)
+			return
+		}
+		defer client.Close()
+
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+
+		o := client.Bucket(bucketName).Object(decoded)
+
+		attrs, err := o.Attrs(ctx)
+		if err != nil {
+			log.Println("Error getting object attributes:", err)
+			http.Error(w, "Object not found in storage", http.StatusNotFound)
+			return
+		}
+
+		o = o.If(storage.Conditions{GenerationMatch: attrs.Generation})
+		if err := o.Delete(ctx); err != nil {
+			log.Println("Error deleting GCS object:", err)
+			http.Error(w, "Failed to delete from storage", http.StatusInternalServerError)
+			return
+		}
+
+		log.Println("Successfully deleted from GCS")
+
+		// Delete from database
+		if err := db.Delete(&models.Post{}, uuid).Error; err != nil {
+			log.Println("Failed to delete post from database:", err)
+			http.Error(w, "Failed to delete post from database", http.StatusInternalServerError)
+			return
+		}
+
+		log.Println("Successfully deleted from database")
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message": "Delete successful"}`))
+		log.Println("Delete operation completed successfully")
 	}
 }
