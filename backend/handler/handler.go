@@ -143,9 +143,8 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// Find the post by URL (assuming postUrl is a unique identifier)
-		var post models.Post
-		if err := db.First(&post, "id = ?", uuid).Error; err != nil {
-			log.Println("Post not found:", err)
+		post, err := respositories.GetPostById(db, uuid)
+		if err != nil {
 			http.Error(w, "Post not found", http.StatusNotFound)
 			return
 		}
@@ -154,8 +153,8 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 		post.Description = description
 
 		// Save the updated post
-		if err := db.Save(&post).Error; err != nil {
-			log.Println("Failed to update post:", err)
+		err = respositories.UpdatePost(db, post)
+		if err != nil {
 			http.Error(w, "Failed to update post", http.StatusInternalServerError)
 			return
 		}
@@ -242,11 +241,9 @@ func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 
 		log.Println("Successfully deleted from GCS")
 
-		// Delete from database
-		if err := db.Delete(&models.Post{}, uuid).Error; err != nil {
-			log.Println("Failed to delete post from database:", err)
+		err = respositories.DeletePost(db, uuid)
+		if err != nil {
 			http.Error(w, "Failed to delete post from database", http.StatusInternalServerError)
-			return
 		}
 
 		log.Println("Successfully deleted from database")
