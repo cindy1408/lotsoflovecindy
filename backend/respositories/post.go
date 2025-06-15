@@ -3,9 +3,9 @@ package respositories
 import (
 	"time"
 
+	"gallery/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"lotsoflovecindy/m/v2/models"
 )
 
 //CRUD logic (your Get, Update, Delete functions)

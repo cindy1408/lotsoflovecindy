@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"gallery/handler"
 	"log"
-	"lotsoflovecindy/m/v2/handler"
 	"net/http"
 
+	"gallery/postgres"
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
-	"lotsoflovecindy/m/v2/postgres"
 )
 
 func main() {

@@ -5,12 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"gallery/gcs"
+	"gallery/models"
+	"gallery/respositories"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"log"
-	"lotsoflovecindy/m/v2/gcs"
-	"lotsoflovecindy/m/v2/models"
-	"lotsoflovecindy/m/v2/respositories"
 	"net/http"
 	url2 "net/url"
 	"regexp"
@@ -168,15 +168,12 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Received DELETE request at /delete-post")
-		log.Println("Method:", r.Method)
-		log.Println("Headers:", r.Header)
 
 		if r.Method != http.MethodPost {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
 		}
 
-		const bucketName = "lotsoflovecindy"
 		url := r.FormValue("url_path")
 		id := r.FormValue("id")
 
@@ -202,16 +199,10 @@ func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Extract object name from full URL
-		// Example URL: https://storage.googleapis.com/lotsoflovecindy/Screenshot%202025-05-15%20at%2009.50.54.png?Expires=...
-		// Steps:
-		// 1. Remove query parameters
-		// 2. Remove "https://storage.googleapis.com/<bucketName>/" prefix
-		// Result: "Screenshot 2025-05-15 at 09.50.54.png"
 		reQuery := regexp.MustCompile(`\?.*`)
 		cleaned := reQuery.ReplaceAllString(url, "")
 
-		prefix := "https://storage.googleapis.com/" + bucketName + "/"
+		prefix := "https://storage.googleapis.com/" + gcs.BucketName + "/"
 		if !strings.HasPrefix(cleaned, prefix) {
 			log.Println("URL does not start with expected prefix")
 			http.Error(w, "Invalid URL format", http.StatusBadRequest)
@@ -233,7 +224,7 @@ func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 
-		o := client.Bucket(bucketName).Object(decoded)
+		o := client.Bucket(gcs.BucketName).Object(decoded)
 
 		attrs, err := o.Attrs(ctx)
 		if err != nil {

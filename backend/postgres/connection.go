@@ -2,10 +2,10 @@ package postgres
 
 import (
 	"fmt"
+	"gallery/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"lotsoflovecindy/m/v2/models"
 	"time"
 )
 
