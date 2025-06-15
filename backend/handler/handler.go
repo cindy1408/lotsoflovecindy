@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"cloud.google.com/go/storage"
-	"context"
 	"encoding/json"
 	"fmt"
 	"gallery/gcs"
@@ -12,10 +10,6 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
-	url2 "net/url"
-	"regexp"
-	"strings"
-	"time"
 )
 
 func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
@@ -28,19 +22,7 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		gcsBaseURL := "https://storage.googleapis.com/" + gcs.BucketName + "/"
-
-		for i, post := range posts {
-			if len(post.ContentURL) > len(gcsBaseURL) && post.ContentURL[:len(gcsBaseURL)] == gcsBaseURL {
-				objectName := post.ContentURL[len(gcsBaseURL):]
-				signedURL, err := gcs.GenerateSignedURL(gcs.BucketName, objectName)
-				if err != nil {
-					log.Printf("Failed to sign URL for object %s: %v", objectName, err)
-					continue // fallback: leave original URL
-				}
-				posts[i].ContentURL = signedURL
-			}
-		}
+		posts, err = gcs.RetrieveAllPosts(posts)
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(posts)
@@ -72,12 +54,9 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 			contentType = "application/octet-stream" // fallback
 		}
 
-		// Generate signed URL for PUT
-		signedURL, err := gcs.GenerateUploadSignedUploadURL(gcs.BucketName, filename, contentType)
+		signedURL, err := gcs.UploadPost(filename, contentType)
 		if err != nil {
-			log.Printf("Failed to generate signed URL: %v", err)
 			http.Error(w, "Failed to generate signed URL", http.StatusInternalServerError)
-			return
 		}
 
 		// Respond with the signed URL
@@ -198,48 +177,15 @@ func DeleteHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		reQuery := regexp.MustCompile(`\?.*`)
-		cleaned := reQuery.ReplaceAllString(url, "")
-
-		prefix := "https://storage.googleapis.com/" + gcs.BucketName + "/"
-		if !strings.HasPrefix(cleaned, prefix) {
-			log.Println("URL does not start with expected prefix")
+		decoded, err := gcs.ExtractObjectName(url)
+		if err != nil {
 			http.Error(w, "Invalid URL format", http.StatusBadRequest)
-			return
 		}
-		objectName := cleaned[len(prefix):]
-		decoded, err := url2.PathUnescape(objectName)
-		log.Println("Extracted object name:", objectName)
 
-		ctx := context.Background()
-		client, err := storage.NewClient(ctx)
+		err = gcs.DeletePost(decoded)
 		if err != nil {
-			log.Println("Error creating storage client:", err)
-			http.Error(w, "Failed to create storage client", http.StatusInternalServerError)
-			return
-		}
-		defer client.Close()
-
-		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		defer cancel()
-
-		o := client.Bucket(gcs.BucketName).Object(decoded)
-
-		attrs, err := o.Attrs(ctx)
-		if err != nil {
-			log.Println("Error getting object attributes:", err)
-			http.Error(w, "Object not found in storage", http.StatusNotFound)
-			return
-		}
-
-		o = o.If(storage.Conditions{GenerationMatch: attrs.Generation})
-		if err := o.Delete(ctx); err != nil {
-			log.Println("Error deleting GCS object:", err)
 			http.Error(w, "Failed to delete from storage", http.StatusInternalServerError)
-			return
 		}
-
-		log.Println("Successfully deleted from GCS")
 
 		err = respositories.DeletePost(db, uuid)
 		if err != nil {

@@ -4,8 +4,13 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"encoding/json"
+	"errors"
 	"google.golang.org/api/option"
+	"log"
+	url2 "net/url"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -80,4 +85,21 @@ func GenerateUploadSignedUploadURL(bucket, object, contentType string) (string, 
 	}
 
 	return url, nil
+}
+
+func ExtractObjectName(url string) (string, error) {
+	reQuery := regexp.MustCompile(`\?.*`)
+	cleaned := reQuery.ReplaceAllString(url, "")
+
+	prefix := "https://storage.googleapis.com/" + BucketName + "/"
+	if !strings.HasPrefix(cleaned, prefix) {
+		log.Println("URL does not start with expected prefix")
+		return "", errors.New("URL does not start with expected prefix")
+	}
+
+	objectName := cleaned[len(prefix):]
+	decoded, _ := url2.PathUnescape(objectName)
+	log.Println("Extracted object name:", objectName)
+
+	return decoded, nil
 }
