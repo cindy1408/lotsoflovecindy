@@ -14,7 +14,7 @@ import (
 func main() {
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // Allow necessary methods, including OPTIONS for preflight
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 
@@ -23,8 +23,8 @@ func main() {
 		return
 	}
 
-	http.HandleFunc("/upload", handler.UploadHandler(db))
 	http.HandleFunc("/list-files", handler.RetrieveHandler(db))
+	http.HandleFunc("/upload", handler.UploadHandler(db))
 	http.HandleFunc("/update-description", handler.UpdateHandler(db))
 	http.HandleFunc("/delete-post", handler.DeleteHandler(db))
 

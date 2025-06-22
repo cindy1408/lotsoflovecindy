@@ -26,7 +26,6 @@ func Connection() (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
 
-	// Retry for up to 10 seconds
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err == nil {
 		fmt.Println("Successfully connected to the database!")
@@ -37,7 +36,7 @@ func Connection() (*gorm.DB, error) {
 		log.Fatalf("Error opening DB: %v", err)
 	}
 
-	err = db.AutoMigrate(&models.Post{})
+	err = db.AutoMigrate(&models.Post{}, &models.User{})
 	if err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
