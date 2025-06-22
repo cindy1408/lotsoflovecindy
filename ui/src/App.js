@@ -66,8 +66,6 @@ function App() {
             });
 
             if (uploadResponse.ok) {
-                // const data = await response.json();
-                // console.log("File uploaded:", data);
                 fetchImages();
             } else {
                 alert("Upload failed.");
