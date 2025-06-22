@@ -8,8 +8,13 @@ import Modal from "./components/modal";
 function App() {
     // State
     const [file, setFile] = useState(null);    // Selected file to upload
-    const [images, setImages] = useState([]); // Lists of images objects
-    const [selectedImage, setSelectedImage] = useState(null); // Image url shown in modal
+    const [images, setImages] = useState([]); // List of image objects
+    const [selectedImage, setSelectedImage] = useState(null); // Image for modal
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        fetchImages();
+    }, []);
 
     // Fetch images from server
     const fetchImages = async () => {
@@ -24,17 +29,10 @@ function App() {
             const data = JSON.parse(text);
             setImages(data);
 
-            console.log("Raw fetched text:", text);
-            console.log("Parsed JSON data:", data);
-
         } catch (error) {
             console.error("Error fetching images:", error);
         }
     };
-
-    useEffect(() => {
-        fetchImages();
-    }, []);
 
     // === Upload File Handler ===
     const handleUpload = async () => {
@@ -131,12 +129,15 @@ function App() {
                 body: formData,
             });
 
-            if (!response.ok) {
-                throw new Error(`Delete failed: ${response.status}`);
+            if (response.ok) {
+                alert("Deletion successful!");
+                console.log("Successfully deleted file");
+                setShowModal(false)
+                setSelectedImage(null);
+                fetchImages();
+            } else {
+                alert("Delete failed.");
             }
-
-            console.log("Delete successful");
-            // setShowModal(false); // Close the modal
 
         } catch (error) {
             console.error("Delete failed:", error);
@@ -162,9 +163,7 @@ function App() {
                 <Modal
                     image={selectedImage.ContentURL}
                     description={selectedImage.Description}
-                    onClose={() => {
-                        setSelectedImage(null);
-                    }}
+                    onClose={() => setShowModal(false)}
                     updatedDescription={handleDescriptionUpdate}
                     deleteObject={handleDeleteObject}
                 />
