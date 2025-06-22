@@ -35,7 +35,7 @@ function App() {
     };
 
     // === Upload File Handler ===
-    const handleUpload = async () => {
+    const handleUpload = async (file) => {
         if (!file) {
             alert("Please select a file to upload");
             return;
@@ -66,8 +66,8 @@ function App() {
             });
 
             if (uploadResponse.ok) {
-                alert("Upload successful!");
-                console.log("File accessible at:", publicUrl);
+                // const data = await response.json();
+                // console.log("File uploaded:", data);
                 fetchImages();
             } else {
                 alert("Upload failed.");
