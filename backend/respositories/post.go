@@ -19,6 +19,16 @@ func GetAllPosts(db *gorm.DB) ([]models.Post, error) {
 	return posts, nil
 }
 
+func GetPostByName(db *gorm.DB, name string) (*models.Post, error) {
+	var post *models.Post
+	if err := db.First(&post, "name = ?", name).Error; err != nil {
+		log.Println("Post not found:", err)
+		return nil, err
+	}
+
+	return post, nil
+}
+
 func GetPostById(db *gorm.DB, uuid uuid.UUID) (*models.Post, error) {
 	var post *models.Post
 	if err := db.First(&post, "id = ?", uuid).Error; err != nil {

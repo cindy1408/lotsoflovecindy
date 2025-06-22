@@ -33,7 +33,6 @@ func RetrieveHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-// UploadHandler which accepts the db connection
 func UploadHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Received request at /upload (for signed URL)")
@@ -46,6 +45,13 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 		filename := r.FormValue("filename")
 		if filename == "" {
 			http.Error(w, "Missing filename", http.StatusBadRequest)
+			return
+		}
+
+		post, err := respositories.GetPostByName(db, filename)
+		if post != nil {
+			log.Printf("File with name: %v already exists", filename)
+			http.Error(w, "File already exists", http.StatusInternalServerError)
 			return
 		}
 
@@ -68,6 +74,7 @@ func UploadHandler(db *gorm.DB) http.HandlerFunc {
 		publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", gcs.BucketName, filename)
 
 		err = respositories.CreatePost(db, &models.Post{
+			Name:       filename,
 			ContentURL: publicURL,
 		})
 		if err != nil {
@@ -85,14 +92,12 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Update description endpoint hit!")
 
-		// Ensure method is POST
 		if r.Method != http.MethodPost {
 			log.Println("Invalid request method")
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
 		}
 
-		// Get the URL of the post to update from the form data
 		id := r.FormValue("id")
 		if id == "" {
 			log.Println("Missing post ID")
@@ -105,7 +110,6 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 			log.Print("uuid.Parse")
 		}
 
-		// Get the URL of the post to update from the form data
 		url := r.FormValue("url_path")
 		if url == "" {
 			log.Println("Missing post URL")
@@ -113,7 +117,6 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Get the updated description from the form data
 		description := r.FormValue("description")
 		if description == "" {
 			log.Println("Missing updated description")
@@ -121,24 +124,20 @@ func UpdateHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Find the post by URL (assuming postUrl is a unique identifier)
 		post, err := respositories.GetPostById(db, uuid)
 		if err != nil {
 			http.Error(w, "Post not found", http.StatusNotFound)
 			return
 		}
 
-		// Update the post fields
 		post.Description = description
 
-		// Save the updated post
 		err = respositories.UpdatePost(db, post)
 		if err != nil {
 			http.Error(w, "Failed to update post", http.StatusInternalServerError)
 			return
 		}
 
-		// Respond with success
 		fmt.Fprintf(w, "Post updated successfully! URL: %s", post.ContentURL)
 	}
 }
